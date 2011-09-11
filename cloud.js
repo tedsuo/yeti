@@ -20,6 +20,11 @@ module.exports.create = function(){
       yeti.stdout.on('data',function(msg){
         console.log('YETI '+yeti.yeti_id+': '+msg);
       });
+
+      yeti.stderr.on('data',function(msg){
+        console.log('YETI '+yeti.yeti_id+': '+msg);
+      });
+
       
       callback(null,yeti.pid);
       console.log('created yeti '+yeti.yeti_id);

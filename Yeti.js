@@ -14,7 +14,7 @@ Yeti.prototype.set = function(settings, callback){
   // expects post body to be a json object with: protocol (http or https), port, host, requests, max_requests, concurrency
   this.clear_queue();
   // TODO: needs error checking on settings 
-  this.settings = JSON.parse(settings);
+  this.settings = settings;
   var ipaddr_regex = new RegExp("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$");
   if(!this.settings.host.match(ipaddr_regex)){
     dns.lookup(this.settings.host, function(err, addr){
