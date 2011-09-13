@@ -6,7 +6,7 @@ var yeti;
 
 yeti = new Yeti();
     
-var mc_client = dnode({
+var cloud_client = dnode({
   getId: function(callback){
     callback(null,process.pid);
   },
@@ -26,19 +26,20 @@ var mc_client = dnode({
 });
 
 if(process.env.NODE_ENV == 'production'){
-  mc_client.connect(1337, function(remote, conn){
-    mc_client.remote = remote;
-    mc_client.remote_conn = conn;
+  cloud_client.connect(1339, function(remote, conn){
+    cloud_client.remote = remote;
+    cloud_client.remote_conn = conn;
     yeti.remote = remote;
     yeti.status = 'awaiting commands';
-    console.log('Connected to MC on hailstorm.radicaldesigns.org:1337\n Awaiting Orders...');
+    console.log('Connected to cloud on hailstorm.radicaldesigns.org:1337\n Awaiting Orders...');
   });
 } else {
-  mc_client.connect(1337, function(remote, conn){
-    mc_client.remote = remote;
-    mc_client.remote_conn = conn;
+  console.log('Connecting to MC....');
+  cloud_client.connect(1339, function(remote, conn){
+    cloud_client.remote = remote;
+    cloud_client.remote_conn = conn;
     yeti.remote = remote;
     yeti.status = 'awaiting commands';    
-    console.log('Connected to MC on localhost:1337\n Awaiting Orders...');
+    console.log('Connected to cloud on localhost:1339\n Awaiting Orders...');
   });
 }

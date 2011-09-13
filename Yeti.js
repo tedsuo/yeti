@@ -57,7 +57,7 @@ Yeti.prototype.start = function(callback){
     this.attack();
   }
   this.initial_start_time = new Date().getTime();
-  this.remote.updateYetiStatus(this.status);
+  this.remote.updateTestStatus(this.status);
 };
 
 Yeti.prototype.queue_attack = function(){
