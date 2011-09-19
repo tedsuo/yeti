@@ -34,12 +34,12 @@ if(process.env.NODE_ENV == 'production'){
     console.log('Connected to cloud on hailstorm.radicaldesigns.org:1337\n Awaiting Orders...');
   });
 } else {
-  console.log('Connecting to MC....');
+  console.log('Connecting....');
   cloud_client.connect(1339, function(remote, conn){
     cloud_client.remote = remote;
     cloud_client.remote_conn = conn;
     yeti.remote = remote;
     yeti.status = 'awaiting commands';    
-    console.log('Connected to cloud on localhost:1339\n Awaiting Orders...');
+    console.log('Connected to cloud on localhost:1339');
   });
 }
