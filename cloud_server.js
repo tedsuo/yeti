@@ -53,8 +53,8 @@ var yeti_cloud_server = dnode(function(client, conn){
     mc_client.remote.report(yeti.id, result);
   };  
 
-  this.updateYetiStatus = function(status){
-    mc_client.remote.updateYetiStatus(yeti.id, status);
+  this.updateTestStatus = function(status){
+    mc_client.remote.updateTestStatus(yeti.id, status);
   };
   
   this.finished = function(){

@@ -2,11 +2,19 @@ var http = require('http');
 var https = require('https');
 var dns = require('dns');
 
+var requests_buffer = parseInt(process.env.YETI_REQUESTS_BUFFER) || 10;
+
 var Yeti = function(){
   this.settings = {};
   this.requests_sent = 0;
   this.request_log = {};
   this.status = 'waking up';
+  this.report = {};
+};
+
+Yeti.prototype.send_report_flush = function(){
+  this.remote.report(this.report);
+  this.report = {};
 };
 
 Yeti.prototype.set = function(settings, callback){
@@ -71,6 +79,7 @@ Yeti.prototype.clear_queue = function() {
 
 Yeti.prototype.stop = function() {
   this.clear_queue();
+  this.send_report_flush();
   this.remote.finished();
 };
 
@@ -92,7 +101,7 @@ Yeti.prototype.attack = function(){
   console.log('sending request '+this.num_requests+': '+JSON.stringify(req_data));
   
   // start a log for yeti request
-  this.request_log[this.num_requests] = {
+  this.request_log[request_id] = {
     method: req_data.method,
     path: req_data.path
   };
@@ -155,8 +164,45 @@ Yeti.prototype.on_request_end = function(request_id,res){
   this.request_log[request_id].end_time = new Date().getTime() - this.initial_start_time;
   this.request_log[request_id].response_time = this.request_log[request_id].end_time - this.request_log[request_id].start_time;
   this.request_log[request_id].status_code = res.statusCode;
+  var yeti = this;
   console.log('request '+request_id+' '+this.request_log[request_id].method+' '+this.request_log[request_id].path+' finished with code '+this.request_log[request_id].status_code+' in '+this.request_log[request_id].response_time+' ms');
-  this.remote.report(this.request_log[request_id]);
+  this.log_to_report(request_id, function(){
+    delete yeti.request_log[request_id];
+    if(request_id % requests_buffer == 0){
+      yeti.send_report_flush();
+    }
+  });
 };
+
+// gather the response, and put it into a reduced response object
+Yeti.prototype.log_to_report = function(request_id, callback){
+  var rounded_start_time = Math.ceil(this.request_log[request_id].start_time / 5000);
+  var rounded_response = Math.round(this.request_log[request_id].response_time / 100);
+  var rounded_end_time = rounded_start_time + rounded_response;
+  var status_code = this.request_log[request_id].status_code;
+  var method = this.request_log[request_id].method;
+  var path = this.request_log[request_id].path;
+  if(this.report[status_code] == undefined){
+    this.report[status_code] = {};
+  }
+  if(this.report[status_code][method] == undefined){
+    this.report[status_code][method] = {};
+  }
+  if(this.report[status_code][method][path] == undefined){
+    this.report[status_code][method][path] = {};
+  }
+  if(this.report[status_code][method][path][rounded_end_time] == undefined){
+    this.report[status_code][method][path][rounded_end_time] = {};
+  }
+  if(this.report[status_code][method][path][rounded_end_time][rounded_start_time] == undefined){
+    this.report[status_code][method][path][rounded_end_time][rounded_start_time] = {};
+  }
+  if(this.report[status_code][method][path][rounded_end_time][rounded_start_time].count == undefined){
+    this.report[status_code][method][path][rounded_end_time][rounded_start_time].count = 0;
+  }
+  this.report[status_code][method][path][rounded_end_time][rounded_start_time].count++;
+  this.report[status_code][method][path][rounded_end_time][rounded_start_time].response_time = rounded_response;
+  callback();
+}
 
 module.exports = Yeti;
