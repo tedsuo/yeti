@@ -201,7 +201,6 @@ Yeti.prototype.log_to_report = function(request_id, callback){
     this.report[status_code][method][path][rounded_end_time][rounded_start_time].count = 0;
   }
   this.report[status_code][method][path][rounded_end_time][rounded_start_time].count++;
-  this.report[status_code][method][path][rounded_end_time][rounded_start_time].response_time = rounded_response;
   callback();
 }
 
